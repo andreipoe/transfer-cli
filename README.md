@@ -96,7 +96,7 @@ $ make install bindir=/path/to/bin
 $ transfer --help
 Usage:
   transfer download [<url> [file]]
-    [--decrypt|-d] [--file|-f <file>] [--password|-p <password>] [--trace|-x]
+    [--decrypt|-d] [--save|--cat] [--file|-f <file>] [--password|-p <password>] [--trace|-x]
     [--url|-u <url>]
 
   transfer upload [<file> [slug]]
@@ -112,7 +112,10 @@ More Information:
   repo    https://github.com/rockymadden/transfer-cli
 ```
 
-To use a selfhosted instance of transfer.sh, change the `server` variable at the top of the script.
+### Configurable options
+Change these variables at the top of the script to change the default behaviour.
+  * `server`:  set a custom URL to use a selfhosted instance of transfer.sh.
+  * `use_stdout`: set to `no` to save downloaded files by default instead of writing them to standard output (may be less pipe-friendly). This option can be overridden through the `--cat` or `--save` CLI arguments.
 
 ## License
 ```

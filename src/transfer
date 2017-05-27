@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
+# CONFIGURABLE OPTIONS #################################################################################
 server="https://transfer.sh"
+use_stdout="yes"
 
 # COMMAND PARSING #################################################################################
 case "${1}" in
@@ -18,6 +20,7 @@ esac
 # ARGUMENT AND OPTION PARSING #####################################################################
 while (( "$#" )); do
   case "${1}" in
+    --cat) use_stdout="yes" ; shift ;;
     --decrypt|-d) decrypt=0 ; shift ;;
     --encrypt|-e) encrypt=0 ; shift ;;
     --file=*) file=${1/--file=/''} ; shift ;;
@@ -28,6 +31,7 @@ while (( "$#" )); do
     --max-downloads*|-l*) max_downloads=${2} ; shift ;  shift ;;
     --password=*) password=${1/--password=/''} ; shift ;;
     --password*|-p*) password=${2} ; shift ; shift ;;
+    --save) use_stdout="no" ; shift ;;
     --slug=*) slug=${1/--slug=/''} ; shift ;;
     --slug*|-s*) slug=${2} ; shift ; shift ;;
     --trace|-x) trace='set -x' ; shift ;;
@@ -64,6 +68,8 @@ esac
 
 # COMMAND FUNCTIONS ###############################################################################
 function download() {
+  [ -z "${file}" -a "${use_stdout}" == "no" ] && file=${url##*/}
+
   if [ -n "${file}" ]; then
     local path=$(greadlink -f "${file}" 2> /dev/null || readlink -f "${file}" 2> /dev/null)
 
@@ -88,7 +94,7 @@ function help() {
   echo '    [--url|-u <url>]'
   echo
   echo "  ${bin} upload [<file> [slug]]"
-  echo '    [--encrypt|-e] [--file|-f <file>] [--password|-p <password>] [--slug|-s <slug>]'
+  echo '    [--encrypt|-e] [--max-days|-y <days>] [--max-downloads|-l <dls>] [--file|-f <file>] [--password|-p <password>] [--slug|-s <slug>]'
   echo '    [--trace|-x]'
   echo
   echo 'Commands:'
@@ -137,7 +143,7 @@ function upload() {
       eval curl --progress-bar "${headers}" --upload-file - "${server}/${slug}" > ${tmpurl}
   fi
 
-  cat ${tmpurl}
+  cat ${tmpurl} && [ "${use_stdout}" == "no" ] && echo
   if type pbcopy &> /dev/null; then cat ${tmpurl} | tr -d '\n' | pbcopy; fi
 }
 
